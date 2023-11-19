@@ -4,11 +4,11 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('./models/User.js');
+const Property = require('./models/Property.js');
 const cookieParser = require('cookie-parser');
 const imageDownloader = require('image-downloader');
 const multer = require('multer');
 const fs = require('fs');
-const { log } = require('console');
 
 require('dotenv').config();
 const app = express();
@@ -116,6 +116,37 @@ app.post('/upload', photosMiddleware.array('photos', 100), async (req, res) => {
     uploadedFiles.push(newPath.replace('uploads\\', ''));
   }
   res.json(uploadedFiles);
+});
+
+app.post('/create-property', (req, res) => {
+  const { token } = req.cookies;
+  const {
+    title,
+    address,
+    addedPhotos,
+    description,
+    features,
+    extraInfo,
+    checkIn,
+    checkOut,
+    maxGuests,
+  } = req.body;
+  jwt.verify(token, jwtSecret, {}, async (error, userData) => {
+    if (error) throw error;
+    const propertyDoc = await Property.create({
+      owner: userData.id,
+      title,
+      address,
+      addedPhotos,
+      description,
+      features,
+      extraInfo,
+      checkIn,
+      checkOut,
+      maxGuests,
+    });
+    res.json(propertyDoc);
+  });
 });
 
 app.listen(4000, () => {

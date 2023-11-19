@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import PropertyFeatures from '../components/PropertyFeatures';
+import PhotosUploader from '../components/PhotosUploader';
 import axios from 'axios';
 
 export default function Property() {
@@ -8,13 +9,13 @@ export default function Property() {
   const [title, setTitle] = useState('');
   const [address, setAddress] = useState('');
   const [addedPhotos, setAddedPhotos] = useState([]);
-  const [photoLink, setPhotoLink] = useState('');
   const [description, setDescription] = useState('');
   const [features, setFeatures] = useState([]);
   const [extraInfo, setExtraInfo] = useState('');
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
   const [maxGuests, setMaxGuests] = useState(1);
+  const [redirectToPropertiesList, setRedirectToPropertiesList] = useState('');
 
   function inputHeader(text) {
     return <h2 className='text-xl mt-4'>{text}</h2>;
@@ -33,33 +34,24 @@ export default function Property() {
     );
   }
 
-  async function addPhotoByLink(e) {
+  async function handleCreateProperty(e) {
     e.preventDefault();
-    const { data: filename } = await axios.post('/upload-by-link', {
-      link: photoLink,
+    await axios.post('/create-property', {
+      title,
+      address,
+      addedPhotos,
+      description,
+      features,
+      extraInfo,
+      checkIn,
+      checkOut,
+      maxGuests,
     });
-    setAddedPhotos((prev) => {
-      return [...prev, filename];
-    });
-    setPhotoLink('');
+    setRedirectToPropertiesList(true);
   }
 
-  function uploadPhoto(e) {
-    const files = e.target.files;
-    const data = new FormData();
-    for (let i = 0; i < files.length; i++) {
-      data.append('photos', files[i]);
-    }
-    axios
-      .post('/upload', data, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
-      .then((response) => {
-        const { data: filenames } = response;
-        setAddedPhotos((prev) => {
-          return [...prev, ...filenames];
-        });
-      });
+  if (redirectToPropertiesList && action !== 'new') {
+    return <Navigate to={'/account/places'} />;
   }
 
   return (
@@ -90,7 +82,7 @@ export default function Property() {
       )}
       {action === 'new' && (
         <div>
-          <form>
+          <form onSubmit={handleCreateProperty}>
             {preInput(
               'Title',
               'The title for your property. This should be short and catchy.'
@@ -109,54 +101,10 @@ export default function Property() {
               placeholder='Address'
             />
             {preInput('Photos', 'The more the better!')}
-            <div className='flex gap-2'>
-              <input
-                type='text'
-                value={photoLink}
-                onChange={(e) => setPhotoLink(e.target.value)}
-                placeholder='Add using a link e.g ....jpg'
-              />
-              <button
-                onClick={addPhotoByLink}
-                className='bg-primary px-4 rounded-2xl text-white'
-              >
-                Add from URL
-              </button>
-            </div>
-            <div className='mt-2 gap-2 grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6'>
-              {addedPhotos.length > 0 &&
-                addedPhotos.map((link) => (
-                  <div className='h-32 flex'>
-                    <img
-                      className='rounded-2xl w-full object-cover'
-                      src={'http://localhost:4000/uploads/' + link}
-                    />
-                  </div>
-                ))}
-              <label className='h-32 cursor-pointer items-center border bg-transparent rounded-2xl p-2 text-2xl text-gray-600 flex justify-center gap-1 hover:bg-gray-100 duration-150'>
-                <input
-                  type='file'
-                  multiple
-                  className='hidden'
-                  onChange={uploadPhoto}
-                />
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                  strokeWidth={1.5}
-                  stroke='currentColor'
-                  className='w-8 h-8'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    d='M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z'
-                  />
-                </svg>
-                Upload
-              </label>
-            </div>
+            <PhotosUploader
+              addedPhotos={addedPhotos}
+              onChange={setAddedPhotos}
+            />
             {preInput('Description', 'Add a description of your property.')}
             <textarea
               value={description}
@@ -180,19 +128,19 @@ export default function Property() {
               <div>
                 <h3 className='mt-2 -mb-1'>Check-in time</h3>
                 <input
-                  type='text'
+                  type='number'
                   value={checkIn}
                   onChange={(e) => setCheckIn(e.target.value)}
-                  placeholder='14:00'
+                  placeholder='14'
                 />
               </div>
               <div>
                 <h3 className='mt-2 -mb-1'>Check-out time</h3>
                 <input
-                  type='text'
+                  type='number'
                   value={checkOut}
                   onChange={(e) => setCheckOut(e.target.value)}
-                  placeholder='12:00'
+                  placeholder='12'
                 />
               </div>
               <div>
