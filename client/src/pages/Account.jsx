@@ -28,7 +28,7 @@ export default function Account() {
   }
 
   function linkClasses(type = null) {
-    let classes = 'inline-flex gap-1 py-2 px-6 rounded-full';
+    let classes = 'inline-flex items-center gap-1 py-2 px-6 rounded-full';
     if (type === subpage) {
       classes += ' bg-primary text-white rounded-full';
     } else {
