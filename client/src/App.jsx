@@ -25,6 +25,7 @@ function App() {
           <Route path='/account' element={<Profile />} />
           <Route path='/account/properties' element={<Property />} />
           <Route path='/account/properties/new' element={<PropertyForm />} />
+          <Route path='/account/properties/:id' element={<PropertyForm />} />
           <Route path='/account/bookings' element={<MyBookings />} />
         </Route>
       </Routes>

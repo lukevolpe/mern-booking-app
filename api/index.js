@@ -123,7 +123,7 @@ app.post('/create-property', (req, res) => {
   const {
     title,
     address,
-    addedPhotos,
+    photos: addedPhotos,
     description,
     features,
     extraInfo,
@@ -146,6 +146,55 @@ app.post('/create-property', (req, res) => {
       maxGuests,
     });
     res.json(propertyDoc);
+  });
+});
+
+app.get('/properties', (req, res) => {
+  const { token } = req.cookies;
+  jwt.verify(token, jwtSecret, {}, async (error, userData) => {
+    const { id } = userData;
+    res.json(await Property.find({ owner: id }));
+  });
+});
+
+app.get('/properties/:id', async (req, res) => {
+  const { id } = req.params;
+  res.json(await Property.findById(id));
+});
+
+app.put('/properties', async (req, res) => {
+  const { token } = req.cookies;
+  const {
+    id,
+    title,
+    address,
+    photos: addedPhotos,
+    description,
+    features,
+    extraInfo,
+    checkIn,
+    checkOut,
+    maxGuests,
+  } = req.body;
+
+  jwt.verify(token, jwtSecret, {}, async (error, userData) => {
+    if (error) throw error;
+    const propertyDoc = await Property.findById(id);
+    if (userData.id === propertyDoc.owner.toString()) {
+      propertyDoc.set({
+        title,
+        address,
+        addedPhotos,
+        description,
+        features,
+        extraInfo,
+        checkIn,
+        checkOut,
+        maxGuests,
+      });
+      await propertyDoc.save();
+      res.json('Property saved');
+    }
   });
 });
 

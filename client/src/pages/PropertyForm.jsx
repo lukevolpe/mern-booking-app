@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import PropertyFeatures from '../components/PropertyFeatures';
 import PhotosUploader from '../components/PhotosUploader';
 import axios from 'axios';
 import AccountNav from '../components/AccountNav';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 
 export default function PropertyForm() {
+  const { id } = useParams();
   const [title, setTitle] = useState('');
   const [address, setAddress] = useState('');
   const [addedPhotos, setAddedPhotos] = useState([]);
@@ -16,6 +17,24 @@ export default function PropertyForm() {
   const [checkOut, setCheckOut] = useState('');
   const [maxGuests, setMaxGuests] = useState(1);
   const [redirect, setRedirect] = useState(false);
+
+  useEffect(() => {
+    if (!id) {
+      return;
+    }
+    axios.get('/properties/' + id).then((response) => {
+      const { data } = response;
+      setTitle(data.title);
+      setAddress(data.address);
+      setAddedPhotos(data.photos);
+      setDescription(data.description);
+      setFeatures(data.features);
+      setExtraInfo(data.extraInfo);
+      setCheckIn(data.checkIn);
+      setCheckOut(data.checkOut);
+      setMaxGuests(data.maxGuests);
+    });
+  }, [id]);
 
   function inputHeader(text) {
     return <h2 className='text-xl mt-4'>{text}</h2>;
@@ -34,9 +53,9 @@ export default function PropertyForm() {
     );
   }
 
-  async function handleCreateProperty(e) {
+  async function saveProperty(e) {
     e.preventDefault();
-    await axios.post('/create-property', {
+    const propertyData = {
       title,
       address,
       addedPhotos,
@@ -46,8 +65,19 @@ export default function PropertyForm() {
       checkIn,
       checkOut,
       maxGuests,
-    });
-    setRedirect(true);
+    };
+    if (id) {
+      // update
+      await axios.put('/properties', {
+        id,
+        ...propertyData,
+      });
+      setRedirect(true);
+    } else {
+      // new property
+      await axios.post('/properties', propertyData);
+      setRedirect(true);
+    }
   }
 
   if (redirect) {
@@ -57,7 +87,7 @@ export default function PropertyForm() {
   return (
     <div>
       <AccountNav />
-      <form onSubmit={handleCreateProperty}>
+      <form onSubmit={saveProperty}>
         {preInput(
           'Title',
           'The title for your property. This should be short and catchy.'
@@ -126,7 +156,7 @@ export default function PropertyForm() {
           </div>
         </div>
         <div>
-          <button className='primary my-4'>Create</button>
+          <button className='primary my-4'>Save</button>
         </div>
       </form>
     </div>

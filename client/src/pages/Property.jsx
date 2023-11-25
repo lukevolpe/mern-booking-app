@@ -1,13 +1,19 @@
 import { Link, useParams } from 'react-router-dom';
 import AccountNav from '../components/AccountNav';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 export default function Property() {
+  const [properties, setProperties] = useState([]);
+  useEffect(() => {
+    axios.get('/properties').then(({ data }) => {
+      setProperties(data);
+    });
+  }, []);
   return (
     <div>
       <AccountNav />
       <div className='text-center'>
-        List of all added properties
-        <br />
         <Link
           className='inline-flex gap-1 bg-primary text-white py-2 px-6 rounded-full'
           to={'/account/properties/new'}
@@ -28,6 +34,25 @@ export default function Property() {
           </svg>
           Create new property
         </Link>
+      </div>
+      <div className='mt-4'>
+        {properties.length > 0 &&
+          properties.map((property) => (
+            <Link
+              to={'/account/properties/' + property._id}
+              className='flex cursor-pointer gap-4 bg-gray-100 p-4 rounded-2xl'
+            >
+              <div className='w-32 h-32 bg-gray-300 grow shrink-0'>
+                {property.photos.length > 0 && (
+                  <img src={property.photos[0]} alt='' />
+                )}
+              </div>
+              <div className='grow-0 shrink'>
+                <h2 className='text-xl font-semibold'>{property.title}</h2>
+                <p className='text-sm mt-2'>{property.description}</p>
+              </div>
+            </Link>
+          ))}
       </div>
     </div>
   );
