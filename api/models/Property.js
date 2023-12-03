@@ -11,6 +11,7 @@ const propertySchema = new mongoose.Schema({
   checkIn: Number,
   checkOut: Number,
   maxGuests: Number,
+  price: Number,
 });
 
 const PropertyModel = mongoose.model('Property', propertySchema);

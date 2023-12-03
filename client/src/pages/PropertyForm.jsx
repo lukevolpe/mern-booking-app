@@ -16,6 +16,7 @@ export default function PropertyForm() {
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
   const [maxGuests, setMaxGuests] = useState(1);
+  const [price, setPrice] = useState(100);
   const [redirect, setRedirect] = useState(false);
 
   useEffect(() => {
@@ -33,6 +34,7 @@ export default function PropertyForm() {
       setCheckIn(data.checkIn);
       setCheckOut(data.checkOut);
       setMaxGuests(data.maxGuests);
+      setPrice(data.price);
     });
   }, [id]);
 
@@ -65,6 +67,7 @@ export default function PropertyForm() {
       checkIn,
       checkOut,
       maxGuests,
+      price,
     };
     if (id) {
       // update
@@ -152,6 +155,17 @@ export default function PropertyForm() {
               value={maxGuests}
               onChange={(e) => setMaxGuests(e.target.value)}
               placeholder='5'
+            />
+          </div>
+          <div>
+            <h2 className='text-xl mt-4'>Pricing</h2>
+            <p className='text-gray-500 text-sm'>
+              Add the price per night here
+            </p>
+            <input
+              type='number'
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
             />
           </div>
         </div>

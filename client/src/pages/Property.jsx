@@ -6,7 +6,7 @@ import axios from 'axios';
 export default function Property() {
   const [properties, setProperties] = useState([]);
   useEffect(() => {
-    axios.get('/properties').then(({ data }) => {
+    axios.get('/user-properties').then(({ data }) => {
       setProperties(data);
     });
   }, []);
@@ -35,7 +35,7 @@ export default function Property() {
           Create new property
         </Link>
       </div>
-      <div className='mt-4 flex flex-col gap-4 max-w-3xl'>
+      <div className='mx-auto mt-4 flex flex-col gap-4 max-w-3xl'>
         {properties.length > 0 &&
           properties.map((property) => (
             <Link
