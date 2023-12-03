@@ -133,8 +133,8 @@ export default function PropertyFeatures({ selected, onChange }) {
       <label className='border p-4 flex rounded-2xl gap-2 items-center cursor-pointer'>
         <input
           type='checkbox'
-          checked={selected.includes('wifi')}
-          name='wifi'
+          checked={selected.includes('alarm')}
+          name='alarm'
           onChange={handleCheckboxClick}
         />
         <svg

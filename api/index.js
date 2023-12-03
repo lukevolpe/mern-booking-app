@@ -152,6 +152,7 @@ app.post('/create-property', (req, res) => {
 app.get('/properties', (req, res) => {
   const { token } = req.cookies;
   jwt.verify(token, jwtSecret, {}, async (error, userData) => {
+    if (error) throw error;
     const { id } = userData;
     res.json(await Property.find({ owner: id }));
   });
@@ -168,7 +169,7 @@ app.put('/properties', async (req, res) => {
     id,
     title,
     address,
-    photos: addedPhotos,
+    addedPhotos,
     description,
     features,
     extraInfo,
@@ -184,7 +185,7 @@ app.put('/properties', async (req, res) => {
       propertyDoc.set({
         title,
         address,
-        addedPhotos,
+        photos: addedPhotos,
         description,
         features,
         extraInfo,

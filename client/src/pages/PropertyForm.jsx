@@ -75,7 +75,7 @@ export default function PropertyForm() {
       setRedirect(true);
     } else {
       // new property
-      await axios.post('/properties', propertyData);
+      await axios.post('/create-property', propertyData);
       setRedirect(true);
     }
   }
