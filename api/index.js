@@ -9,6 +9,7 @@ const cookieParser = require('cookie-parser');
 const imageDownloader = require('image-downloader');
 const multer = require('multer');
 const fs = require('fs');
+const Booking = require('./models/Booking.js');
 
 require('dotenv').config();
 const app = express();
@@ -34,6 +35,15 @@ mongoose
   .catch((err) => {
     console.log(err);
   });
+
+function getUserDataFromReq(req) {
+  return new Promise((resolve, reject) => {
+    jwt.verify(req.cookies.token, jwtSecret, {}, async (error, userData) => {
+      if (error) throw error;
+      resolve(userData);
+    });
+  });
+}
 
 app.get('/test', (req, res) => {
   res.json('Test OK');
@@ -205,6 +215,33 @@ app.put('/properties', async (req, res) => {
 
 app.get('/properties', async (req, res) => {
   res.json(await Property.find());
+});
+
+app.post('/bookings', async (req, res) => {
+  const userData = await getUserDataFromReq(req);
+  const { property, checkIn, checkOut, numberOfGuests, name, phone, price } =
+    req.body;
+  Booking.create({
+    property,
+    checkIn,
+    checkOut,
+    numberOfGuests,
+    name,
+    phone,
+    price,
+    user: userData.id,
+  })
+    .then((doc) => {
+      res.json(doc);
+    })
+    .catch((error) => {
+      throw error;
+    });
+});
+
+app.get('/bookings', async (req, res) => {
+  const userData = await getUserDataFromReq(req);
+  res.json(await Booking.find({ user: userData.id }).populate('property'));
 });
 
 app.listen(4000, () => {
